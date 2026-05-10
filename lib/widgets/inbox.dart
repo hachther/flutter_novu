@@ -19,6 +19,13 @@ class Inbox extends StatefulWidget {
 
   final Widget Function(int unreadCount)? renderBell;
   final Widget Function(InboxNotification notification)? renderNotification;
+  final Widget Function(InboxNotification notification)? renderAvatar;
+  final Widget Function(InboxNotification notification)? renderSubject;
+  final Widget Function(InboxNotification notification)? renderBody;
+
+  final Function(InboxNotification notification)? onNotificationTap;
+  final Function(InboxNotification notification)? onPrimaryActionTap;
+  final Function(InboxNotification notification)? onSecondaryActionTap;
 
   const Inbox({super.key,
     this.backendUrl = 'https://eu.api.novu.co',
@@ -31,6 +38,12 @@ class Inbox extends StatefulWidget {
     this.subscriber,
     this.renderBell,
     this.renderNotification,
+    this.renderAvatar,
+    this.renderSubject,
+    this.renderBody,
+    this.onNotificationTap,
+    this.onPrimaryActionTap,
+    this.onSecondaryActionTap,
   }): assert(subscriberId != null || subscriber != null, 'Subscriber or subscriberId is required!');
 
   @override
@@ -73,19 +86,26 @@ class _InboxState extends State<Inbox> {
 
   @override
   Widget build(BuildContext context) {
-    var _onTap = () {
+    void onTap() {
       Navigator.push(context, MaterialPageRoute<void>(
         builder: (context) => NotificationsScreen(
           headlessService: _headless,
           renderNotification: widget.renderNotification,
+          renderAvatar: widget.renderAvatar,
+          renderSubject: widget.renderSubject,
+          renderBody: widget.renderBody,
+          onNotificationTap: widget.onNotificationTap,
+          onPrimaryActionTap: widget.onPrimaryActionTap,
+          onSecondaryActionTap: widget.onSecondaryActionTap,
         ),
       ));
-    };
+    }
+
     if (widget.renderBell != null) {
       return GestureDetector(
         child: widget.renderBell!.call(unreadCount),
         onTap: () {
-          _onTap();
+          onTap();
         },
       );
     }
@@ -93,7 +113,7 @@ class _InboxState extends State<Inbox> {
     var icon =  IconButton(
       icon: widget.icon ?? const Icon(Icons.notifications),
       onPressed: () {
-        _onTap();
+        onTap();
       },
     );
 

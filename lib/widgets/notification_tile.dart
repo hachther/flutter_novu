@@ -15,6 +15,13 @@ class NotificationTile extends StatelessWidget {
   final Function(InboxNotification notification)? onTap;
 
   final Widget Function(InboxNotification notification)? renderNotification;
+  final Widget Function(InboxNotification notification)? renderAvatar;
+  final Widget Function(InboxNotification notification)? renderSubject;
+  final Widget Function(InboxNotification notification)? renderBody;
+
+  final Function(InboxNotification notification)? onNotificationTap;
+  final Function(InboxNotification notification)? onPrimaryActionTap;
+  final Function(InboxNotification notification)? onSecondaryActionTap;
 
   const NotificationTile({
     super.key,
@@ -24,6 +31,12 @@ class NotificationTile extends StatelessWidget {
     this.onMarkAsUnArchived,
     this.onTap,
     this.renderNotification,
+    this.renderAvatar,
+    this.renderSubject,
+    this.renderBody,
+    this.onNotificationTap,
+    this.onPrimaryActionTap,
+    this.onSecondaryActionTap,
   });
 
   @override
@@ -54,7 +67,9 @@ class NotificationTile extends StatelessWidget {
       child: InkWell(
         onTap: () {
           onTap?.call(notification);
-          if (notification.redirect != null &&
+          if (onNotificationTap != null) {
+            onNotificationTap!.call(notification);
+          } else if (notification.redirect != null &&
               notification.redirect!.url != null) {
             launchURL(notification.redirect!.url!);
           }
@@ -72,18 +87,17 @@ class NotificationTile extends StatelessWidget {
                 children: [
                   _buildReadIndicator(),
                   const SizedBox(width: 12),
-                  if (notification.avatar != null &&
-                      notification.avatar!.isNotEmpty) ...[
-                    _buildAvatar(),
+                  if (notification.avatar?.isNotEmpty == true) ...[
+                    renderAvatar?.call(notification) ?? _buildAvatar(),
                     const SizedBox(width: 12),
                   ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(context),
+                        renderSubject?.call(notification) ?? _buildHeader(context),
                         const SizedBox(height: 4),
-                        _buildContent(),
+                        renderBody?.call(notification) ?? _buildContent(),
                         const SizedBox(height: 8),
                         _buildFooter(context),
                       ],
@@ -239,9 +253,13 @@ class NotificationTile extends StatelessWidget {
           if (notification.secondaryAction != null)
             TextButton(
               onPressed: () {
-                if (notification.secondaryAction!.redirect != null &&
-                    notification.secondaryAction!.redirect!.url != null) {
-                  launchURL(notification.secondaryAction!.redirect!.url!);
+                if (onSecondaryActionTap != null) {
+                  onSecondaryActionTap!.call(notification);
+                } else {
+                  if (notification.secondaryAction!.redirect != null &&
+                      notification.secondaryAction!.redirect!.url != null) {
+                    launchURL(notification.secondaryAction!.redirect!.url!);
+                  }
                 }
               },
               child: Text(notification.secondaryAction!.label),
@@ -250,9 +268,13 @@ class NotificationTile extends StatelessWidget {
           if (notification.primaryAction != null)
             ElevatedButton(
               onPressed: () {
-                if (notification.primaryAction!.redirect != null &&
-                    notification.primaryAction!.redirect!.url != null) {
-                  launchURL(notification.primaryAction!.redirect!.url!);
+                if (onPrimaryActionTap != null) {
+                  onPrimaryActionTap!.call(notification);
+                } else {
+                  if (notification.primaryAction!.redirect != null &&
+                      notification.primaryAction!.redirect!.url != null) {
+                    launchURL(notification.primaryAction!.redirect!.url!);
+                  }
                 }
               },
               child: Text(notification.primaryAction!.label),

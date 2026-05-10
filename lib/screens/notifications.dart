@@ -22,11 +22,24 @@ enum PageAction {
 class NotificationsScreen extends StatefulWidget {
   final HeadlessService headlessService;
   final Widget Function(InboxNotification notification)? renderNotification;
+  final Widget Function(InboxNotification notification)? renderAvatar;
+  final Widget Function(InboxNotification notification)? renderSubject;
+  final Widget Function(InboxNotification notification)? renderBody;
+
+  final Function(InboxNotification notification)? onNotificationTap;
+  final Function(InboxNotification notification)? onPrimaryActionTap;
+  final Function(InboxNotification notification)? onSecondaryActionTap;
 
   const NotificationsScreen({
     super.key,
     required this.headlessService,
-    this.renderNotification
+    this.renderNotification,
+    this.renderAvatar,
+    this.renderSubject,
+    this.renderBody,
+    this.onNotificationTap,
+    this.onPrimaryActionTap,
+    this.onSecondaryActionTap,
   });
 
   @override
@@ -156,6 +169,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
           },
 
           renderNotification: widget.renderNotification,
+          renderAvatar: widget.renderAvatar,
+          renderSubject: widget.renderSubject,
+          renderBody: widget.renderBody,
+          onNotificationTap: widget.onNotificationTap,
+          onPrimaryActionTap: widget.onPrimaryActionTap,
+          onSecondaryActionTap: widget.onSecondaryActionTap,
         ),
       ],
     );
