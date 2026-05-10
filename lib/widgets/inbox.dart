@@ -16,6 +16,8 @@ class Inbox extends StatefulWidget {
   final Map<String, ContextValue>? context;
   final Subscriber? subscriber;
 
+  final Widget Function({int? unreadCount})? renderBell;
+
   const Inbox({super.key,
     this.backendUrl = 'https://eu.api.novu.co',
     this.socketUrl = 'https://eu.ws.novu.co',
@@ -25,6 +27,7 @@ class Inbox extends StatefulWidget {
     this.tabs = const [],
     this.context,
     this.subscriber,
+    this.renderBell,
   }): assert(subscriberId != null || subscriber != null, 'Subscriber or subscriberId is required!');
 
   @override
@@ -67,6 +70,19 @@ class _InboxState extends State<Inbox> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.renderBell != null) {
+      return GestureDetector(
+        child: widget.renderBell!.call(),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute<void>(
+            builder: (context) => NotificationsScreen(
+              headlessService: _headless,
+            ),
+          ));
+        },
+      );
+    }
+
     var icon =  IconButton(
       icon: widget.icon ?? const Icon(Icons.notifications),
       onPressed: () {
@@ -77,6 +93,7 @@ class _InboxState extends State<Inbox> {
         ));
       },
     );
+
     if (unreadCount > 0) {
       return Badge(
         label: Text(unreadCount.toString()),
