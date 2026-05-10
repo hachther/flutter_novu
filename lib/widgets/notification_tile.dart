@@ -14,6 +14,8 @@ class NotificationTile extends StatelessWidget {
   final Function(String notificationId)? onMarkAsUnArchived;
   final Function(InboxNotification notification)? onTap;
 
+  final Widget Function(InboxNotification notification)? renderNotification;
+
   const NotificationTile({
     super.key,
     required this.notification,
@@ -21,6 +23,7 @@ class NotificationTile extends StatelessWidget {
     this.onMarkAsArchived,
     this.onMarkAsUnArchived,
     this.onTap,
+    this.renderNotification,
   });
 
   @override
@@ -56,7 +59,7 @@ class NotificationTile extends StatelessWidget {
             launchURL(notification.redirect!.url!);
           }
         },
-        child: Container(
+        child: renderNotification?.call(notification) ?? Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: notification.isRead
               ? Theme.of(context).canvasColor

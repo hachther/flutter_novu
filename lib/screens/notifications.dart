@@ -21,8 +21,13 @@ enum PageAction {
 
 class NotificationsScreen extends StatefulWidget {
   final HeadlessService headlessService;
+  final Widget Function(InboxNotification notification)? renderNotification;
 
-  const NotificationsScreen({super.key, required this.headlessService});
+  const NotificationsScreen({
+    super.key,
+    required this.headlessService,
+    this.renderNotification
+  });
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -116,6 +121,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
 
   Future<void> _refreshNotifications() async {
     await _loadNotifications(refresh: true);
+  }
+
+  Widget _renderNotification(int index, InboxNotification notification) {
+    return Column(
+      children: [
+        if (index > 0)
+          const Divider(height: 0.2, indent: 10, endIndent: 10,),
+        NotificationTile(
+          notification: notification,
+          onMarkAsArchived: (notificationId) async {
+            await widget.headlessService.markNotificationAs(
+                notificationId, MarkNotificationAs.archive);
+            setState(() {
+              _notifications = _notifications.where((n) => n.id != notificationId).toList();
+            });
+          },
+          onMarkAsUnArchived: (notificationId) async {
+            await widget.headlessService.markNotificationAs(
+                notificationId, MarkNotificationAs.unarchive);
+            setState(() {
+              _notifications = _notifications.where((n) => n.id != notificationId).toList();
+            });
+          },
+          onMarkAsRead: (notificationId) async {
+            await widget.headlessService.markNotificationAs(
+                notificationId, MarkNotificationAs.read);
+            _refreshNotifications();
+          },
+          onTap: (notification) async {
+            await widget.headlessService.markNotificationAs(
+                notification.id, MarkNotificationAs.read);
+            _refreshNotifications();
+          },
+
+          renderNotification: widget.renderNotification,
+        ),
+      ],
+    );
   }
 
   @override
@@ -230,39 +273,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
         }
 
         final notification = _notifications[index];
-        return Column(
-          children: [
-            if (index > 0)
-              const Divider(height: 0.2, indent: 10, endIndent: 10,),
-            NotificationTile(
-              notification: notification,
-              onMarkAsArchived: (notificationId) async {
-                await widget.headlessService.markNotificationAs(
-                    notificationId, MarkNotificationAs.archive);
-                setState(() {
-                  _notifications = _notifications.where((n) => n.id != notificationId).toList();
-                });
-              },
-              onMarkAsUnArchived: (notificationId) async {
-                await widget.headlessService.markNotificationAs(
-                    notificationId, MarkNotificationAs.unarchive);
-                setState(() {
-                  _notifications = _notifications.where((n) => n.id != notificationId).toList();
-                });
-              },
-              onMarkAsRead: (notificationId) async {
-                await widget.headlessService.markNotificationAs(
-                    notificationId, MarkNotificationAs.read);
-                _refreshNotifications();
-              },
-              onTap: (notification) async {
-                await widget.headlessService.markNotificationAs(
-                    notification.id, MarkNotificationAs.read);
-                _refreshNotifications();
-              },
-            ),
-          ],
-        );
+        return _renderNotification(index, notification);
       },
     );
   }

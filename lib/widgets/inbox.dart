@@ -3,6 +3,7 @@ import 'package:flutter_novu/screens/notifications.dart';
 import 'package:flutter_novu/types.dart';
 
 import '../dot/context_value.dart';
+import '../dot/inbox_notification.dart';
 import '../dot/subscriber.dart';
 import '../inbox.dart';
 
@@ -16,7 +17,8 @@ class Inbox extends StatefulWidget {
   final Map<String, ContextValue>? context;
   final Subscriber? subscriber;
 
-  final Widget Function({int? unreadCount})? renderBell;
+  final Widget Function(int unreadCount)? renderBell;
+  final Widget Function(InboxNotification notification)? renderNotification;
 
   const Inbox({super.key,
     this.backendUrl = 'https://eu.api.novu.co',
@@ -28,6 +30,7 @@ class Inbox extends StatefulWidget {
     this.context,
     this.subscriber,
     this.renderBell,
+    this.renderNotification,
   }): assert(subscriberId != null || subscriber != null, 'Subscriber or subscriberId is required!');
 
   @override
@@ -70,15 +73,19 @@ class _InboxState extends State<Inbox> {
 
   @override
   Widget build(BuildContext context) {
+    var _onTap = () {
+      Navigator.push(context, MaterialPageRoute<void>(
+        builder: (context) => NotificationsScreen(
+          headlessService: _headless,
+          renderNotification: widget.renderNotification,
+        ),
+      ));
+    };
     if (widget.renderBell != null) {
       return GestureDetector(
-        child: widget.renderBell!.call(),
+        child: widget.renderBell!.call(unreadCount),
         onTap: () {
-          Navigator.push(context, MaterialPageRoute<void>(
-            builder: (context) => NotificationsScreen(
-              headlessService: _headless,
-            ),
-          ));
+          _onTap();
         },
       );
     }
@@ -86,11 +93,7 @@ class _InboxState extends State<Inbox> {
     var icon =  IconButton(
       icon: widget.icon ?? const Icon(Icons.notifications),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute<void>(
-          builder: (context) => NotificationsScreen(
-            headlessService: _headless,
-          ),
-        ));
+        _onTap();
       },
     );
 
