@@ -32,14 +32,14 @@ class NotificationTile extends StatelessWidget {
         color: Colors.green,
         icon: Icons.mark_email_read,
         alignment: Alignment.centerLeft,
-        label: SNovu.of(context)!.markAsRead,
+        label: SNovu.of(context)?.markAsRead ?? 'Mark as Read',
       ),
       secondaryBackground: _buildDismissibleBackground(
         context,
         color: Colors.orange,
         icon: Icons.archive,
         alignment: Alignment.centerRight,
-        label: SNovu.of(context)!.archive,
+        label: SNovu.of(context)?.archive ?? 'Archive',
       ),
       onDismissed: (direction) {
         if (direction == DismissDirection.startToEnd) {
@@ -204,7 +204,7 @@ class NotificationTile extends StatelessWidget {
             value: 'read',
             child: ListTile(
               leading: const Icon(Icons.mark_email_read),
-              title: Text(SNovu.of(context)!.markAsRead),
+              title: Text(SNovu.of(context)?.markAsRead ?? 'Mark as Read'),
             ),
           ),
         if (notification.isArchived != true)
@@ -212,7 +212,7 @@ class NotificationTile extends StatelessWidget {
             value: 'archive',
             child: ListTile(
               leading: const Icon(Icons.archive),
-              title: Text(SNovu.of(context)!.archive),
+              title: Text(SNovu.of(context)?.archive ?? 'Archive'),
             ),
           ),
         if (notification.isArchived == true)
@@ -220,7 +220,7 @@ class NotificationTile extends StatelessWidget {
             value: 'unarchive',
             child: ListTile(
               leading: const Icon(Icons.unarchive),
-              title: Text(SNovu.of(context)!.unarchive),
+              title: Text(SNovu.of(context)?.unarchive ?? 'Unarchive'),
             ),
           ),
       ],
@@ -264,13 +264,13 @@ class NotificationTile extends StatelessWidget {
     final difference = now.difference(date);
 
     if (difference.inMinutes < 1) {
-      return SNovu.of(context)!.justNow;
+      return SNovu.of(context)?.justNow ?? 'Just now';
     } else if (difference.inMinutes < 60) {
-      return SNovu.of(context)!.dateAgo('${difference.inMinutes}m');
+      return SNovu.of(context)?.dateAgo('${difference.inMinutes}m') ?? '${difference.inMinutes}m ago';
     } else if (difference.inHours < 24) {
-      return SNovu.of(context)!.dateAgo('${difference.inHours}h');
+      return SNovu.of(context)?.dateAgo('${difference.inHours}h') ?? '${difference.inHours}h ago';
     } else if (difference.inDays < 7) {
-      return SNovu.of(context)!.dateAgo('${difference.inDays}d');
+      return SNovu.of(context)?.dateAgo('${difference.inDays}d') ?? '${difference.inDays}d ago';
     } else {
       return DateFormat.yMMMd().format(date);
     }

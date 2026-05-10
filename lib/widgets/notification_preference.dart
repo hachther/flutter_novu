@@ -57,9 +57,9 @@ class _NotificationPreferenceState extends State<NotificationPreference> {
   Widget build(BuildContext context) {
     var workflow = widget.preference.workflow;
     return ExtendedCard(
-      title: workflow?.name ?? SNovu.of(context)!.globalPreferences,
+      title: workflow?.name ?? SNovu.of(context)?.globalPreferences ?? 'Global Preferences',
       titleStyle: Theme.of(context).textTheme.titleMedium,
-      subtitle: values.keys.where((c) => values[c]!).map((c) => SNovu.of(context)!.novuChannel(c)).join(', '),
+      subtitle: values.keys.where((c) => values[c]!).map((c) => SNovu.of(context)?.novuChannel(c) ?? c).join(', '),
       subtitleStyle: Theme.of(context).textTheme.titleSmall,
       color: Theme.of(context).colorScheme.surfaceContainerLowest,
       padding: 10,
@@ -81,7 +81,7 @@ class _NotificationPreferenceState extends State<NotificationPreference> {
               shrinkWrap: true,
               children: values.keys.map((channel) {
                 return ListItem(
-                  title: SNovu.of(context)!.novuChannel(channel),
+                  title: SNovu.of(context)?.novuChannel(channel) ?? channel,
                   type: ListItemType.switching,
                   padding: const EdgeInsets.all(0),
                   onChange: (value) => onChanged(channel, value),

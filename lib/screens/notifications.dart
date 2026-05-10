@@ -120,16 +120,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
 
   @override
   Widget build(BuildContext context) {
-    var pageTitle = SNovu.of(context)!.inbox;
+    var pageTitle = SNovu.of(context)?.inbox;
     switch (view) {
       case PageFilter.all:
-        pageTitle = SNovu.of(context)!.inbox;
+        pageTitle = SNovu.of(context)?.inbox;
         break;
       case PageFilter.unread:
-        pageTitle = SNovu.of(context)!.unreadOnly;
+        pageTitle = SNovu.of(context)?.unreadOnly;
         break;
       case PageFilter.archived:
-        pageTitle = SNovu.of(context)!.archived;
+        pageTitle = SNovu.of(context)?.archived;
         break;
     }
     return Scaffold(
@@ -144,15 +144,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
           itemBuilder: (context) => [
             PopupMenuItem(
               value: PageFilter.all,
-              child: Text(SNovu.of(context)!.unreadAndRead),
+              child: Text(SNovu.of(context)?.unreadAndRead ?? 'Unread And Read'),
             ),
             PopupMenuItem(
               value: PageFilter.unread,
-              child: Text(SNovu.of(context)!.unreadOnly),
+              child: Text(SNovu.of(context)?.unreadOnly ?? 'Unread Only'),
             ),
             PopupMenuItem(
               value: PageFilter.archived,
-              child: Text(SNovu.of(context)!.archived),
+              child: Text(SNovu.of(context)?.archived ?? 'Archived'),
             ),
           ],
           child: Text.rich(TextSpan(
@@ -183,15 +183,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: MarkAllNotificationAs.read,
-                child: Text(SNovu.of(context)!.markAllAsRead),
+                child: Text(SNovu.of(context)?.markAllAsRead ?? 'Mark All As Read'),
               ),
               PopupMenuItem(
                 value: MarkAllNotificationAs.archive,
-                child: Text(SNovu.of(context)!.archiveAll),
+                child: Text(SNovu.of(context)?.archiveAll ?? 'Archive All'),
               ),
               PopupMenuItem(
                 value: MarkAllNotificationAs.readArchive,
-                child: Text(SNovu.of(context)!.archiveRead),
+                child: Text(SNovu.of(context)?.archiveRead ?? 'Archive Read'),
               ),
             ],
           ),
@@ -303,15 +303,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
 
     switch (view) {
       case PageFilter.unread:
-        message = SNovu.of(context)!.noUnreadNotifications;
+        message = SNovu.of(context)?.noUnreadNotifications ?? 'No Unread Notifications';
         icon = Icons.mark_email_read;
         break;
       case PageFilter.archived:
-        message = SNovu.of(context)!.noArchivedNotifications;
+        message = SNovu.of(context)?.noArchivedNotifications ?? 'No Archived Notifications';
         icon = Icons.archive;
         break;
       default:
-        message = SNovu.of(context)!.noNotifications;
+        message = SNovu.of(context)?.noNotifications ?? 'No Notifications';
         icon = Icons.notifications_none;
     }
 

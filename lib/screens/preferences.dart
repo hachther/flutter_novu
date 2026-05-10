@@ -34,7 +34,7 @@ class _NotificationsPreferencesScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          SNovu.of(context)!.notificationsPreferences,
+          SNovu.of(context)?.notificationsPreferences ?? 'Notifications Preferences',
           style: Theme.of(context)
               .textTheme
               .labelLarge!

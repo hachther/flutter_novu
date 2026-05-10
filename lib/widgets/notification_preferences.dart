@@ -31,7 +31,7 @@ class NotificationPreferences extends StatelessWidget {
               const SizedBox(height: 32),
               // Message
               Text(
-                SNovu.of(context)!.noNotificationSettings,
+                SNovu.of(context)?.noNotificationSettings ?? 'No notification settings found',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).primaryColor,
@@ -39,7 +39,7 @@ class NotificationPreferences extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                SNovu.of(context)!.noNotificationSettingsMessage,
+                SNovu.of(context)?.noNotificationSettingsMessage ?? 'It looks like you haven\'t set up any notification preferences yet. Start by creating your first preference to receive notifications tailored to your needs.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[600],
@@ -60,7 +60,7 @@ class NotificationPreferences extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.refresh_rounded),
-                  label: Text(SNovu.of(context)!.refresh),
+                  label: Text(SNovu.of(context)?.refresh ?? 'Refresh'),
                 ),
             ],
           ),
@@ -82,7 +82,7 @@ class NotificationPreferences extends StatelessWidget {
                     Image.asset('assets/images/icons/notifications.png', width: 100, package: 'flutter_novu',),
                     const SizedBox(height: 20,),
                     Text(
-                      SNovu.of(context)!.notifications,
+                      SNovu.of(context)?.notifications ?? 'Notifications',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 30,
@@ -91,7 +91,7 @@ class NotificationPreferences extends StatelessWidget {
                     ),
                     const SizedBox(height: 20,),
                     Text(
-                      SNovu.of(context)!.notificationsMessage,
+                      SNovu.of(context)?.notificationsMessage ?? 'By setting up your notifications you will efficiently use this app',
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
