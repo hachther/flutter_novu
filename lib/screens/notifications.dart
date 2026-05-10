@@ -5,6 +5,7 @@ import 'package:flutter_novu/generated/app_localizations.dart';
 import 'package:flutter_novu/inbox.dart';
 import 'package:flutter_novu/screens/preferences.dart';
 import 'package:flutter_novu/widgets/notification_tile.dart';
+import 'package:shimmer/shimmer.dart';
 
 enum PageFilter {
   all,
@@ -20,7 +21,7 @@ enum PageAction {
 
 class NotificationsScreen extends StatefulWidget {
   final HeadlessService headlessService;
-  
+
   const NotificationsScreen({super.key, required this.headlessService});
 
   @override
@@ -157,7 +158,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
           child: Text.rich(TextSpan(
             children: [
               TextSpan(text: pageTitle),
-              WidgetSpan(child: Icon(Icons.keyboard_arrow_down))
+              const WidgetSpan(child: Icon(Icons.keyboard_arrow_down))
               // if (view != 'all') TextSpan(text: ' (${view.capitalize()})', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           )),
@@ -171,14 +172,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
                 ),
               ));
             },
-            child: Icon(Icons.settings),
+            child: const Icon(Icons.settings),
           ),
           PopupMenuButton<MarkAllNotificationAs>(
             onSelected: (value) {
               widget.headlessService.markAllNotificationAs(MarkAllNotificationAs.read);
               _refreshNotifications();
             },
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: MarkAllNotificationAs.read,
@@ -203,54 +204,94 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
           children: [
             if (widget.headlessService.tabs.isNotEmpty == true) _buildCustomTabs(),
             Expanded(
-              child: _notifications.isEmpty ? _buildEmptyState() : ListView.builder(
-                controller: _scrollController,
-                itemCount: _notifications.length + (_hasMoreData ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _notifications.length) {
-                    return _isLoading
-                        ? Center(child: CircularProgressIndicator())
-                        : SizedBox.shrink();
-                  }
-
-                  final notification = _notifications[index];
-                  return Column(
-                    children: [
-                      if (index > 0)
-                        Divider(height: 0.2, indent: 10, endIndent: 10,),
-                      NotificationTile(
-                        notification: notification,
-                        onMarkAsArchived: (notificationId) async {
-                          await widget.headlessService.markNotificationAs(
-                              notificationId, MarkNotificationAs.archive);
-                          setState(() {
-                            _notifications = _notifications.where((n) => n.id != notificationId).toList();
-                          });
-                        },
-                        onMarkAsUnArchived: (notificationId) async {
-                          await widget.headlessService.markNotificationAs(
-                              notificationId, MarkNotificationAs.unarchive);
-                          setState(() {
-                            _notifications = _notifications.where((n) => n.id != notificationId).toList();
-                          });
-                        },
-                        onMarkAsRead: (notificationId) async {
-                          await widget.headlessService.markNotificationAs(
-                              notificationId, MarkNotificationAs.read);
-                          _refreshNotifications();
-                        },
-                        onTap: (notification) async {
-                          await widget.headlessService.markNotificationAs(
-                              notification.id, MarkNotificationAs.read);
-                          _refreshNotifications();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
+              child: _buildBodyContent(),
             )
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBodyContent() {
+    if (_isLoading && _notifications.isEmpty) {
+      return _buildShimmerList();
+    }
+
+    if (_notifications.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: _notifications.length + (_hasMoreData ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == _notifications.length) {
+          return _isLoading ? _buildShimmerItem() : const SizedBox.shrink();
+        }
+
+        final notification = _notifications[index];
+        return Column(
+          children: [
+            if (index > 0)
+              const Divider(height: 0.2, indent: 10, endIndent: 10,),
+            NotificationTile(
+              notification: notification,
+              onMarkAsArchived: (notificationId) async {
+                await widget.headlessService.markNotificationAs(
+                    notificationId, MarkNotificationAs.archive);
+                setState(() {
+                  _notifications = _notifications.where((n) => n.id != notificationId).toList();
+                });
+              },
+              onMarkAsUnArchived: (notificationId) async {
+                await widget.headlessService.markNotificationAs(
+                    notificationId, MarkNotificationAs.unarchive);
+                setState(() {
+                  _notifications = _notifications.where((n) => n.id != notificationId).toList();
+                });
+              },
+              onMarkAsRead: (notificationId) async {
+                await widget.headlessService.markNotificationAs(
+                    notificationId, MarkNotificationAs.read);
+                _refreshNotifications();
+              },
+              onTap: (notification) async {
+                await widget.headlessService.markNotificationAs(
+                    notification.id, MarkNotificationAs.read);
+                _refreshNotifications();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildShimmerList() {
+    return ListView.builder(
+      itemCount: 10,
+      itemBuilder: (context, index) => _buildShimmerItem(),
+    );
+  }
+
+  Widget _buildShimmerItem() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Colors.white,
+          radius: 24,
+        ),
+        title: Container(
+          height: 16.0,
+          width: double.infinity,
+          color: Colors.white,
+        ),
+        subtitle: Container(
+          height: 12.0,
+          width: double.infinity,
+          color: Colors.white,
         ),
       ),
     );
@@ -290,7 +331,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with TickerPr
   }
 
   Widget _buildCustomTabs() {
-    return Container(
+    return SizedBox(
       height: 48,
       child: TabBar(
         controller: _tabController,

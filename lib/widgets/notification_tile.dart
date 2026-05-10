@@ -25,141 +25,134 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        onTap?.call(notification);
-        if (notification.redirect != null &&
-            notification.redirect!.url != null) {
-          launchURL(notification.redirect!.url!);
+    return Dismissible(
+      key: Key(notification.id),
+      background: _buildDismissibleBackground(
+        context,
+        color: Colors.green,
+        icon: Icons.mark_email_read,
+        alignment: Alignment.centerLeft,
+        label: SNovu.of(context)!.markAsRead,
+      ),
+      secondaryBackground: _buildDismissibleBackground(
+        context,
+        color: Colors.orange,
+        icon: Icons.archive,
+        alignment: Alignment.centerRight,
+        label: SNovu.of(context)!.archive,
+      ),
+      onDismissed: (direction) {
+        if (direction == DismissDirection.startToEnd) {
+          onMarkAsRead?.call(notification.id);
+        } else if (direction == DismissDirection.endToStart) {
+          onMarkAsArchived?.call(notification.id);
         }
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        color: notification.isRead
-            ? null
-            : Theme.of(context).primaryColor.withValues(alpha: 0.05),
-        child: Column(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (notification.avatar != null &&
-                    notification.avatar!.isNotEmpty)
-                  _buildChannelIcon(),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(context),
-                      const SizedBox(height: 4),
-                      _buildContent(),
-                      const SizedBox(height: 8),
-                      _buildFooter(context),
-                    ],
-                  ),
-                ),
-                _buildReadIndicator(),
-                _buildActionsButton(context),
-              ],
-            ),
-            if (notification.primaryAction != null ||
-                notification.secondaryAction != null)
+      child: InkWell(
+        onTap: () {
+          onTap?.call(notification);
+          if (notification.redirect != null &&
+              notification.redirect!.url != null) {
+            launchURL(notification.redirect!.url!);
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          color: notification.isRead
+              ? Theme.of(context).canvasColor
+              : Theme.of(context).primaryColor.withOpacity(0.05),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Spacer(),
-                  if (notification.primaryAction != null)
-                    TextButton(
-                      onPressed: () {
-                        if (notification.primaryAction!.redirect != null &&
-                            notification.primaryAction!.redirect!.url != null) {
-                          launchURL(notification.primaryAction!.redirect!.url!);
-                        }
-                      },
-                      child: Text(notification.primaryAction!.label),
+                  _buildReadIndicator(),
+                  const SizedBox(width: 12),
+                  if (notification.avatar != null &&
+                      notification.avatar!.isNotEmpty) ...[
+                    _buildAvatar(),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(context),
+                        const SizedBox(height: 4),
+                        _buildContent(),
+                        const SizedBox(height: 8),
+                        _buildFooter(context),
+                      ],
                     ),
-                  if (notification.secondaryAction != null)
-                    TextButton(
-                      onPressed: () {
-                        if (notification.secondaryAction!.redirect != null &&
-                            notification.secondaryAction!.redirect!.url != null) {
-                          launchURL(notification.secondaryAction!.redirect!.url!);
-                        }
-                      },
-                      child: Text(notification.secondaryAction!.label, style: TextStyle(color: Theme.of(context).colorScheme.secondary),),
-                    ),
+                  ),
+                  _buildActionsButton(context),
                 ],
-              )
-          ],
+              ),
+              if (notification.primaryAction != null ||
+                  notification.secondaryAction != null)
+                _buildActionButtons(context),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildChannelIcon() {
-    IconData iconData = Icons.app_registration;
-    Color iconColor = Colors.purple;
-    var avatar = notification.avatar;
-
-    // switch (notification.channel) {
-    //   case ChannelType.email:
-    //     iconData = Icons.email;
-    //     iconColor = Colors.blue;
-    //     break;
-    //   case ChannelType.sms:
-    //     iconData = Icons.sms;
-    //     iconColor = Colors.green;
-    //     break;
-    //   case ChannelType.push:
-    //     iconData = Icons.notifications;
-    //     iconColor = Colors.orange;
-    //     break;
-    //   case ChannelType.inApp:
-    //     iconData = Icons.app_registration;
-    //     iconColor = Colors.purple;
-    //     break;
-    //   case ChannelType.chat:
-    //     iconData = Icons.chat;
-    //     iconColor = Colors.teal;
-    //     break;
-    //   default:
-    //     iconData = Icons.notifications;
-    //     iconColor = Colors.grey;
-    // }
-
-    if (avatar != null && avatar.isNotEmpty) {
-      if (avatar.endsWith('svg')) {
-        return SvgPicture.network(avatar, width: 40, height: 40,);
-      }
-    }
-
+  Widget _buildDismissibleBackground(
+    BuildContext context, {
+    required Color color,
+    required IconData icon,
+    required Alignment alignment,
+    required String label,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+      color: color,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      alignment: alignment,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
-      child: Icon(iconData, color: iconColor, size: 20),
     );
   }
 
+  Widget _buildAvatar() {
+    var avatar = notification.avatar;
+    if (avatar != null && avatar.isNotEmpty) {
+      if (avatar.endsWith('svg')) {
+        return SvgPicture.network(
+          avatar,
+          width: 40,
+          height: 40,
+          placeholderBuilder: (context) => const CircleAvatar(radius: 20),
+        );
+      } else {
+        return CircleAvatar(
+          backgroundImage: NetworkImage(avatar),
+          radius: 20,
+        );
+      }
+    }
+    return const SizedBox.shrink();
+  }
+
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        if (notification.subject?.isNotEmpty == true)
-          Expanded(
-            child: Text(
-              notification.subject!,
-              style: TextStyle(
-                fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                fontSize: 16,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        // _buildStatusBadge(),
-      ],
+    return Text(
+      notification.subject ?? '',
+      style: TextStyle(
+        fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+        fontSize: 16,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -168,30 +161,12 @@ class NotificationTile extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
-    return Row(
-      children: [
-        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
-        const SizedBox(width: 4),
-        Text(
-          _formatDate(context, notification.createdAt),
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 12,
-          ),
-        ),
-        if (notification.isArchived == true) ...[
-          const SizedBox(width: 8),
-          Icon(Icons.archive, size: 14, color: Colors.grey[500]),
-          const SizedBox(width: 4),
-          Text(
-            SNovu.of(context)!.archived,
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ],
+    return Text(
+      _formatDate(context, notification.createdAt),
+      style: TextStyle(
+        color: Colors.grey[600],
+        fontSize: 12,
+      ),
     );
   }
 
@@ -199,52 +174,13 @@ class NotificationTile extends StatelessWidget {
     return Container(
       width: 8,
       height: 8,
-      margin: const EdgeInsets.only(top: 8, right: 8),
+      margin: const EdgeInsets.only(top: 6),
       decoration: BoxDecoration(
         color: notification.isRead ? Colors.transparent : Colors.blue,
         shape: BoxShape.circle,
       ),
     );
   }
-
-  // Widget _buildStatusBadge() {
-  //   Color badgeColor;
-  //   String statusText;
-  //
-  //   switch (notification.status) {
-  //     case NotificationStatus.sent:
-  //       badgeColor = Colors.green;
-  //       statusText = 'Sent';
-  //       break;
-  //     case NotificationStatus.error:
-  //       badgeColor = Colors.red;
-  //       statusText = 'Error';
-  //       break;
-  //     case NotificationStatus.warning:
-  //       badgeColor = Colors.orange;
-  //       statusText = 'Warning';
-  //       break;
-  //     default:
-  //       return const SizedBox.shrink();
-  //   }
-  //
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-  //     decoration: BoxDecoration(
-  //       color: badgeColor.withValues(alpha: 0.1),
-  //       borderRadius: BorderRadius.circular(4),
-  //       border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
-  //     ),
-  //     child: Text(
-  //       statusText,
-  //       style: TextStyle(
-  //         color: badgeColor,
-  //         fontSize: 10,
-  //         fontWeight: FontWeight.bold,
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildActionsButton(BuildContext context) {
     return PopupMenuButton<String>(
@@ -266,37 +202,60 @@ class NotificationTile extends StatelessWidget {
         if (!notification.isRead)
           PopupMenuItem(
             value: 'read',
-            child: Row(
-              children: [
-                const Icon(Icons.mark_email_read),
-                const SizedBox(width: 8),
-                Text(SNovu.of(context)!.markAsRead),
-              ],
+            child: ListTile(
+              leading: const Icon(Icons.mark_email_read),
+              title: Text(SNovu.of(context)!.markAsRead),
             ),
           ),
         if (notification.isArchived != true)
           PopupMenuItem(
             value: 'archive',
-            child: Row(
-              children: [
-                Icon(Icons.archive),
-                SizedBox(width: 8),
-                Text(SNovu.of(context)!.archive),
-              ],
+            child: ListTile(
+              leading: const Icon(Icons.archive),
+              title: Text(SNovu.of(context)!.archive),
             ),
           ),
         if (notification.isArchived == true)
           PopupMenuItem(
             value: 'unarchive',
-            child: Row(
-              children: [
-                Icon(Icons.archive),
-                SizedBox(width: 8),
-                Text(SNovu.of(context)!.unarchive),
-              ],
+            child: ListTile(
+              leading: const Icon(Icons.unarchive),
+              title: Text(SNovu.of(context)!.unarchive),
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (notification.secondaryAction != null)
+            TextButton(
+              onPressed: () {
+                if (notification.secondaryAction!.redirect != null &&
+                    notification.secondaryAction!.redirect!.url != null) {
+                  launchURL(notification.secondaryAction!.redirect!.url!);
+                }
+              },
+              child: Text(notification.secondaryAction!.label),
+            ),
+          const SizedBox(width: 8),
+          if (notification.primaryAction != null)
+            ElevatedButton(
+              onPressed: () {
+                if (notification.primaryAction!.redirect != null &&
+                    notification.primaryAction!.redirect!.url != null) {
+                  launchURL(notification.primaryAction!.redirect!.url!);
+                }
+              },
+              child: Text(notification.primaryAction!.label),
+            ),
+        ],
+      ),
     );
   }
 

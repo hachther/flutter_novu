@@ -187,12 +187,16 @@ class HeadlessService {
     return response['data']['notificationId'];
   }
 
-  Future<int> countNotifications({bool? read, bool? archived, List<String> tags = const [] }) async {
+  Future<int> countNotifications({bool? read, bool? archived}) async {
+    List<String> tagStrings = [];
+    for (var tab in tabs) {
+      tagStrings = [...tagStrings, ...(tab.filter?.tags ?? [])];
+    }
     var response = (await _client.get<Map<String, dynamic>>(
       'notifications/count',
       queryParameters: {
         'filters': jsonEncode([{
-          if (tags.isNotEmpty == true) 'tags': tags,
+          if (tagStrings.isNotEmpty == true) 'tags': tagStrings,
           if (read != null) 'read': read,
           if (archived != null) 'archived': archived
         }])

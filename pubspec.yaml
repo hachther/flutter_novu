@@ -20,8 +20,9 @@ dependencies:
   shared_preferences: ^2.3.4
   socket_io_client: ^3.0.2
   url_launcher: ^6.3.1
-  flutter_platform_widgets: ^9.0.0
+  flutter_platform_widgets: ^10.0.1
   dio: ^5.7.0
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
