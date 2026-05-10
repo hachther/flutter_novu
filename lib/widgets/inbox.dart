@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_novu/screens/notifications.dart';
 import 'package:flutter_novu/types.dart';
 
+import '../dot/context_value.dart';
+import '../dot/subscriber.dart';
 import '../inbox.dart';
 
 class Inbox extends StatefulWidget {
@@ -11,15 +13,19 @@ class Inbox extends StatefulWidget {
   final String? subscriberId;
   final Widget? icon;
   final List<InboxTab> tabs;
+  final Map<String, ContextValue>? context;
+  final Subscriber? subscriber;
 
   const Inbox({super.key,
     this.backendUrl = 'https://eu.api.novu.co',
     this.socketUrl = 'https://eu.ws.novu.co',
     required this.applicationIdentifier,
-    required this.subscriberId,
+    this.subscriberId,
     this.icon,
     this.tabs = const [],
-  });
+    this.context,
+    this.subscriber,
+  }): assert(subscriberId != null || subscriber != null, 'Subscriber or subscriberId is required!');
 
   @override
   State<Inbox> createState() => _InboxState();
@@ -40,6 +46,7 @@ class _InboxState extends State<Inbox> {
       socketUrl: widget.socketUrl,
       applicationIdentifier: widget.applicationIdentifier,
       subscriberId: widget.subscriberId,
+      subscriber: widget.subscriber,
       onUnreadChanged: (count) {
         setState(() {
           unreadCount = count;
@@ -54,6 +61,7 @@ class _InboxState extends State<Inbox> {
       //   // Handle received notification
       // },
       tabs: widget.tabs,
+      context: widget.context,
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import 'dot.dart' as Dot;
+import 'dot/context_value.dart';
 import 'dot/inbox_notification.dart';
 
 // final StreamController<NotificationEvent> notificationEventsStream = StreamController<NotificationEvent>.broadcast();
@@ -20,6 +21,7 @@ class HeadlessService {
   final String socketUrl;
   late final String applicationIdentifier;
   final String? subscriberId;
+  final Dot.Subscriber? subscriber;
   final String? subscriberHash;
   final int? retry;
   final int retryDelay;
@@ -28,6 +30,7 @@ class HeadlessService {
   final Function(int)? onUnseenChanged;
   final Function(Dot.Notification)? onReceived;
   final List<InboxTab> tabs;
+  final Map<String, ContextValue>? context;
 
   IO.Socket? _socket;
   String? _token;
@@ -38,6 +41,7 @@ class HeadlessService {
     this.socketUrl = 'https://ws.novu.co',
     required this.applicationIdentifier,
     this.subscriberId,
+    this.subscriber,
     this.subscriberHash,
     this.retry,
     this.retryDelay = 10000,
@@ -45,9 +49,18 @@ class HeadlessService {
     this.onUnseenChanged,
     this.onReceived,
     this.tabs = const [],
+    this.context
   }) {
     var api = BaseApi(backendUrl);
-    api.request(method: ApiMethod.POST, endpoint: 'inbox/session', data: {'applicationIdentifier': applicationIdentifier, 'subscriberId': subscriberId}).then((response) {
+    api.request(method: ApiMethod.POST, endpoint: 'inbox/session', data: {
+      'applicationIdentifier': applicationIdentifier,
+      if (subscriberId != null)
+        'subscriberId': subscriberId,
+      if (subscriber != null)
+        'subscriber': subscriber!.toJson(),
+      if (context != null)
+        'context': context!.entries.map((entry) => MapEntry<String, Map<String, dynamic>>(entry.key, entry.value.toJson()))
+    }).then((response) {
       var value = response['data'];
       prefs.setString('novu_token', value['token']);
       initializeSocket(value['token']);

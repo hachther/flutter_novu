@@ -45,7 +45,9 @@ Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
       deviceTokens: (json['deviceTokens'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      cta: MessageCTA.fromJson(json['cta'] as Map<String, dynamic>),
+      cta: json['cta'] == null
+          ? null
+          : MessageCTA.fromJson(json['cta'] as Map<String, dynamic>),
       status: $enumDecode(_$NotificationStatusEnumMap, json['status']),
       payload: json['payload'] as Map<String, dynamic>?,
       overrides: json['overrides'] as Map<String, dynamic>?,

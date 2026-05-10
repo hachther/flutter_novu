@@ -126,6 +126,8 @@ Subscriber _$SubscriberFromJson(Map<String, dynamic> json) => Subscriber(
       phone: json['phone'] as String?,
       avatar: json['avatar'] as String?,
       locale: json['locale'] as String?,
+      timezone: json['timezone'] as String?,
+      data: json['data'] as Map<String, dynamic>?,
       subscriberId: json['subscriberId'] as String,
       isOnline: json['isOnline'] as bool?,
       lastOnlineAt: json['lastOnlineAt'] == null
@@ -133,9 +135,9 @@ Subscriber _$SubscriberFromJson(Map<String, dynamic> json) => Subscriber(
           : DateTime.parse(json['lastOnlineAt'] as String),
       organizationId: json['_organizationId'] as String,
       environmentId: json['_environmentId'] as String,
-      deleted: json['deleted'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      deleted: json['_environmentId'] as bool,
+      createdAt: DateTime.parse(json['_environmentId'] as String),
+      updatedAt: DateTime.parse(json['_environmentId'] as String),
       v: json['__v'] as String,
     );
 
@@ -148,13 +150,7 @@ Map<String, dynamic> _$SubscriberToJson(Subscriber instance) =>
       'phone': instance.phone,
       'avatar': instance.avatar,
       'locale': instance.locale,
+      'timezone': instance.timezone,
+      'data': instance.data,
       'subscriberId': instance.subscriberId,
-      'isOnline': instance.isOnline,
-      'lastOnlineAt': instance.lastOnlineAt?.toIso8601String(),
-      '_organizationId': instance.organizationId,
-      '_environmentId': instance.environmentId,
-      'deleted': instance.deleted,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      '__v': instance.v,
     };

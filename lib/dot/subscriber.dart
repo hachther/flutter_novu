@@ -158,33 +158,44 @@ class Subscriber {
 
   final String? locale;
 
+  final String? timezone;
+
+  final Map<String, dynamic>? data;
+
   /// The internal identifier you used to create this subscriber, usually correlates to the id the user in your systems
   late final String subscriberId;
 
   /// Channels settings for subscriber
+  @JsonKey(includeToJson: false)
   final List<Channel> channels = [];
 
   /// Topics that subscriber belongs to
+  @JsonKey(includeToJson: false)
   final List<String> topics = [];
 
+  @JsonKey(includeToJson: false)
   final bool? isOnline;
 
+  @JsonKey(includeToJson: false)
   final DateTime? lastOnlineAt;
 
-  @JsonKey(name: '_organizationId')
-  late final String organizationId;
+  @JsonKey(name: '_organizationId', includeToJson: false)
+  final String? organizationId;
 
-  @JsonKey(name: '_environmentId')
-  late final String environmentId;
+  @JsonKey(name: '_environmentId', includeToJson: false)
+  final String? environmentId;
 
-  late final bool deleted;
+  @JsonKey(name: '_environmentId', includeToJson: false)
+  final bool? deleted;
 
-  late final DateTime createdAt;
+  @JsonKey(name: '_environmentId', includeToJson: false)
+  final DateTime? createdAt;
 
-  late final DateTime updatedAt;
+  @JsonKey(name: '_environmentId', includeToJson: false)
+  final DateTime? updatedAt;
 
-  @JsonKey(name: '__v')
-  late final String v;
+  @JsonKey(name: '__v', includeToJson: false)
+  final String? v;
 
   Subscriber({
     this.id,
@@ -194,15 +205,17 @@ class Subscriber {
     this.phone,
     this.avatar,
     this.locale,
+    this.timezone,
+    this.data,
     required this.subscriberId,
     this.isOnline,
     this.lastOnlineAt,
-    required this.organizationId,
-    required this.environmentId,
-    required this.deleted,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.v,
+    this.organizationId,
+    this.environmentId,
+    this.deleted,
+    this.createdAt,
+    this.updatedAt,
+    this.v,
   });
 
   factory Subscriber.fromJson(Map<String, dynamic> json) => _$SubscriberFromJson(json);
